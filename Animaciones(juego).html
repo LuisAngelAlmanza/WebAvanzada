@@ -18,7 +18,8 @@
 
     <script type="text/javascript">
         var canvas = null, ctx = null, x = 0, y = 0;
-        var teclapres = null, speed = 5, player = null, food = null, puntos= 0, avanza = 10, nivel = 1, pausa = null, aux=0;
+        var teclapres = null, speed = 5, player = null, food = null, puntos= 0, avanza = 10, nivel = 1, pausa = null, aux=0, perdio = false;
+        var pared = new Array();
 
         window.requestAnimationFrame = (function(){
             return window.requestAnimationFrame  
@@ -51,7 +52,12 @@
 			ctx.fill();
 			ctx.stroke();
 
-			if (aux==1) {
+			ctx.fillStyle = "gray";
+			for (var i = pared.length - 1; i >= 0; i--) {
+				pared[i].paint(ctx);
+			}
+
+			if (aux==1 && !perdio) {
 				ctx.fillStyle = "white";
 	            ctx.font="100px Garamond";
 				ctx.fillText("pausa", 400, 300);
@@ -64,38 +70,48 @@
 				ctx.fill();
 				ctx.stroke();
 			}
+
+			if (perdio == true) {
+				ctx.fillStyle = "white";
+	            ctx.font="100px Garamond";
+				ctx.fillText("GAME OVER", 200, 300);
+				ctx.fill();
+				ctx.stroke();
+			}
 		}   
 
 		function act(){
 
-			 if( teclapres == 65 || teclapres == 37){ //Izq
-                player.x -= speed;
-                aux=0;
-                if( player.x < 0 ){
-                    player.x = canvas.width;
-                }
-            }
-            if( teclapres == 68 || teclapres == 39){ //Der
-                player.x += speed;
-                aux=0;
-                if( player.x > canvas.width ){
-                    player.x = 0;
-                }
-            }
-            if( teclapres == 87 || teclapres == 38){ //Arriba
-                player.y -= speed;
-                aux=0;
-                if( player.y < 0 ){
-                    player.y = canvas.height;
-                }
-            }
-            if( teclapres == 83 || teclapres == 40){ //Abajo
-                player.y += speed;
-                aux=0;
-                if( player.y > canvas.height ){
-                    player.y = 0;
-                }
-            }
+			if (perdio == false) {
+				if( teclapres == 65 || teclapres == 37){ //Izq
+	                player.x -= speed;
+	                aux=0;
+	                if( player.x < 0 ){
+	                    player.x = canvas.width;
+	                }
+            	}
+	            if( teclapres == 68 || teclapres == 39){ //Der
+	                player.x += speed;
+	                aux=0;
+	                if( player.x > canvas.width ){
+	                    player.x = 0;
+	                }
+	            }
+	            if( teclapres == 87 || teclapres == 38){ //Arriba
+	                player.y -= speed;
+	                aux=0;
+	                if( player.y < 0 ){
+	                    player.y = canvas.height;
+	                }
+	            }
+	            if( teclapres == 83 || teclapres == 40){ //Abajo
+	                player.y += speed;
+	                aux=0;
+	                if( player.y > canvas.height ){
+	                    player.y = 0;
+	                }
+	            }
+			}
 
             if (pausa == 13) {
             	aux = 1;
@@ -109,6 +125,13 @@
             		speed +=2;
             		avanza+=10;
             		nivel+=1;
+            	}
+            }
+
+            for (var i = pared.length - 1; i >= 0; i--) {
+            	if (pared[i].intersects(player)) {
+            		perdio = true;
+            		teclapres = null;
             	}
             }
 		}
@@ -125,6 +148,12 @@
 
 			player = new Rectangle(0,0,10,10);
 			food = new Rectangle(70,50,10,10);
+
+			pared.push(new Rectangle(pared.x = random(canvas.width),pared.y = random(canvas.height), 10,10));
+			pared.push(new Rectangle(pared.x = random(canvas.width),pared.y = random(canvas.height), 10,10));
+			pared.push(new Rectangle(pared.x = random(canvas.width),pared.y = random(canvas.height), 10,10));
+			pared.push(new Rectangle(pared.x = random(canvas.width),pared.y = random(canvas.height), 10,10));
+
 			run();
 		}
 

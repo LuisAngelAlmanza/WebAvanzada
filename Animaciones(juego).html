@@ -20,6 +20,7 @@
         var canvas = null, ctx = null, x = 0, y = 0;
         var teclapres = null, speed = 5, player = null, food = null, puntos= 0, avanza = 10, nivel = 1, pausa = null, aux=0, perdio = false;
         var pared = new Array();
+        var cuerpo = new Image(), comida = new Image();
 
         window.requestAnimationFrame = (function(){
             return window.requestAnimationFrame  
@@ -35,10 +36,12 @@
             ctx.fillRect(0,0,canvas.width,canvas.height)
 
             ctx.fillStyle = "#0f0";
-            player.paint(ctx);
+            //player.paint(ctx);
+            ctx.drawImage(cuerpo,player.x,player.y);
 
             ctx.fillStyle = "red";
-            food.paint(ctx);
+            //food.paint(ctx);
+            ctx.drawImage(comida,food.x,food.y);
 
             ctx.fillStyle = "white";
             ctx.font="30px Coming san";
@@ -132,6 +135,7 @@
             	if (pared[i].intersects(player)) {
             		perdio = true;
             		teclapres = null;
+            		setTimeout('reset()', 3000);
             	}
             }
 		}
@@ -142,9 +146,19 @@
 			paint(ctx);
 		}
 
+		function reset(){
+			perdio = false;
+			speed = 5;
+			puntos = 0;
+
+		}
+
 		function init(){
 			canvas = document.getElementById('canvas');
 			ctx = canvas.getContext('2d');
+
+			cuerpo.src = "Recursos/gusano.png";
+			comida.src = "Recursos/manzana.png";
 
 			player = new Rectangle(0,0,10,10);
 			food = new Rectangle(70,50,10,10);

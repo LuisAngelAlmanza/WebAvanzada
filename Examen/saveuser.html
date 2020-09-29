@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	 <meta charset="UTF-8">
+	<title>Clase</title>
+	<style type="text/css">
+		.super_div{
+			width: 100%;
+			height: 500px;
+			background-color: #D5D8DC;
+		}
+		.mini_div{
+			width: 30%;
+			margin: 1%;
+			border-radius: 5px;
+			border-width: 1px;
+			border-style: solid;
+			border-color: black;
+			height: 300px;
+			float: left;
+		}
+		h1{
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+
+	<div class="super_div">
+		<h1>EXAMEN AJAX</h1>
+		<center>
+			<form id="formulario">
+				<fieldset style="width: 40%;">
+					<legend>
+						Datos del usuario
+					</legend>
+					<label> email: </label>
+					<input type="text" style="width: 100%;height: 40px; text-align: center;" placeholder="ejemplo@gmail.com" name="email" id="email">
+
+					<label>contraseña</label>
+
+					<input type="password" style="width: 100%;height: 40px; text-align: center;" name="password" id="password">
+
+					<label>año de nacimiento</label>
+
+					<input type="text" style="width: 100%;height: 40px; text-align: center;" placeholder="1999" name="year" id="year">
+
+					<button type="button" id="guardar_info"> Guardar regisro</button>
+				</fieldset>
+			</form>
+		</center>
+
+		<br>
+		
+		<center>
+			<table border="1" style="width: 44%;">
+				<thead>
+					<tr>
+						<td>
+							Email
+						</td>
+						<td>
+							Password
+						</td>
+						<td>
+							Año
+						</td>
+					</tr>
+				</thead>
+				<tbody id="content_table">
+					
+				</tbody>
+			</table>
+
+			<button id="mostrar_info"> actualizar tabla </button>
+		</center>
+
+		<h1 id="edad_h1">  </h1>
+	</div>
+
+	<script type="text/javascript" src="recursos/jquery-3.5.1.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready( () =>{
+			$("#guardar_info").click( () =>{
+				var correo = $("#email").val()
+				var password = $("#password").val()
+				var year = $("#year").val()
+
+				$.ajax({
+					url:'file.php',
+					data: { email_base:correo, pass_base:password, annio_base:year },
+					type: "POST",
+					dataType: 'text',
+					success:function(r){
+						if ( r == 1 ){
+							alert("Registro Exitoso")
+						}
+					}
+				})
+
+				$("#email").val("")
+				$("#password").val("")
+				$("#year").val("")
+			})
+
+			$("#mostrar_info").click( () =>{
+				$.ajax({
+					url:'content_file.php',
+					success:function(r){
+						$("#content_table").html(r)
+					}
+				})
+			})
+		})
+	</script>
+</body>
+</html>

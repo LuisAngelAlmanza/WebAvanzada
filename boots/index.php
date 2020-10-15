@@ -3,7 +3,7 @@
 	$userController = new UserController();
 
 	$users = $userController->get();
-	#echo json_encode($users);
+	//echo $_SESSION['token'];
 ?>
 
 <!DOCTYPE html>
@@ -94,7 +94,7 @@
 					  <div class="card-header">
 					    Lista de usuarios registrados
 
-					    <button type="button" data-toggle="modal" data-target="#staticBackdrop" class="btn btn-primary float-right" onclick="add">
+					    <button type="button" data-toggle="modal" data-target="#staticBackdrop" class="btn btn-primary float-right" onclick="add()">
 					    	Añadir usuario
 					    </button>
 					  </div>
@@ -131,31 +131,30 @@
 						      <td>
 						      	<?php if ($user['status']): ?>
 
-						      		<span class="bagde badge-succes">
+						      		<span class="badge badge-success">
 						      			Activo
 						      		</span>
 
-						      		<?php else: ?>
+						      	<?php else: ?>
 
-						      		<span class="bagde badge-warning">
+						      		<span class="badge badge-warning">
 						      			Inactivo
 						      		</span>
-						      		
+
 						      	<?php endif ?>
 						      </td>
 						      <td>
 						      	<button data-info='<?= json_encode($user) ?>'  data-toggle="modal" data-target="#staticBackdrop" type="button" class="btn btn-warning" onclick="editar(this)">
 						      		<i class="fa fa-pencil"></i> Editar
 						      	</button>
-						      	<button onclick="remove(1)" type="button" class="btn btn-danger">
+						      	<button onclick="remove(<?= $user['id'] ?>,this)" type="button" class="btn btn-danger">
 							      	<i class="fa fa-trash"></i> Eliminar
 							    </button>
 						      </td>
 						    </tr> 
 
-						<?php endforeach ?>
-					<?php endif ?>
-
+							<?php endforeach ?>
+							<?php endif ?>
 						  </tbody>
 						</table>
 
@@ -182,7 +181,7 @@
 		        </button>
 	    	</div>
 
-	    	<form method="POST" action="controllers/UserController.php" onsubmit="return validateRegister()" name="myForm" > 
+	    	<form method="POST" id="myForm" action="users" onsubmit="return validateRegister()"> 
 		      	<div class="modal-body">
 		        	
 		        	<!-- NOMBRE COMPLETO -->
@@ -259,6 +258,7 @@
 		        	</button>
 		        	<input type="hidden" name="action" id="action" value="store">
 		        	<input type="hidden" name="id" id="id">
+		        	<input type="hidden" name="token" value="<?= $_SESSION['token'] ?>">
 		    	</div>
 	    	</form>
 
@@ -268,10 +268,14 @@
 	</div>
 
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> 
+	
+
 	<script type="text/javascript">
+
 		function validateRegister()
 		{
 			if($("#password").val() == $("#password2").val()){
@@ -285,7 +289,8 @@
 				return false;
 			} 
 		}
-		function remove(id){
+		
+		function remove(id,target){
 			swal({
 			  title: "",
 			  text: "¿Desea eliminar el usuario?",
@@ -296,15 +301,41 @@
 			})
 			.then((willDelete) => {
 			  if (willDelete) {
-			    swal("Usuario eliminado con exito!", {
-			      icon: "success",
-			    });
-			  } else {
-			    //swal("Your imaginary file is safe!");
+
+			  	$.ajax({
+			  		url: 'users',
+			  		type: 'POST',
+			  		dataType: 'json',
+			  		data: {action: 'remove',user_id:id,token:'<?= $_SESSION['token'] ?>'},
+			  		success: function(json)
+			  		{
+			  			console.log(json)
+
+			  			if (json.status == 'success') {
+			  				swal(json.message, {
+						      icon: "success",
+						    });
+						    $(target).parent().parent().remove();
+			  			}else{
+			  				swal(json.message, {
+						      icon: "error",
+						    });
+			  			}
+			  			
+			  		},
+			  		error: function(xhr,status)
+			  		{
+			  			console.log(xhr)
+			  			console.log(status)
+			  		}
+			  	}) 
+			  	
+
+			    
+			  } else { 
 			  }
 			});
 		}
-
 		function editar(target){
 			
 			var info = $(target).data('info');
@@ -323,6 +354,7 @@
 			$("#action").val('store')
 			document.getElementById("myForm").reset();
 		}
+
 	</script>
 </body>
 </html>
